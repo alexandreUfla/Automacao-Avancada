@@ -1,7 +1,4 @@
 package classes;
-import classes.Jogo;
-import classes.Alvo;
-import classes.Canhao;
 
 public class Projetil extends Thread{
     private double x, y;

@@ -1,7 +1,4 @@
 package classes;
-import classes.Jogo;
-import classes.Alvo;
-
 
 public class Canhao extends Thread{
     private double x, y;
@@ -48,8 +45,9 @@ public class Canhao extends Thread{
     public void desligar(){
         this.ativo = false;
     }
-
     public boolean isLadoEsquerdo(){
         return isLadoEsquerdo;
     }
+    public double getX() { return x; }
+    public double getY() { return y; }
 }

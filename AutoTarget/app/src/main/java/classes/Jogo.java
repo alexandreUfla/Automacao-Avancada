@@ -1,9 +1,6 @@
 package classes;
 import java.util.ArrayList;
 import java.util.List;
-import classes.Canhao;
-import classes.Projetil;
-import classes.Alvo;
 
 public class Jogo extends Thread{
     private List<Alvo> alvos = new ArrayList<>();
@@ -139,8 +136,10 @@ public class Jogo extends Thread{
     public double getLarguraTela(){
         return larguraTela;
     }
-
     public double getAlturaTela(){
         return alturaTela;
     }
+    public List<Alvo> getAlvos() { return alvos; }
+    public List<Canhao> getCanhoes() { return canhoes; }
+    public List<Projetil> getProjeteis() { return projeteis; }
 }

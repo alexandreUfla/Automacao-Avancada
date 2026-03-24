@@ -1,5 +1,4 @@
 package classes;
-import classes.Jogo;
 
 public abstract class Alvo extends Thread{
     protected double x, y;
