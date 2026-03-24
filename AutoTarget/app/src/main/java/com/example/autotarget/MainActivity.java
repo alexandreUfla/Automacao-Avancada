@@ -32,12 +32,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
-        gameView.iniciarDesenho(); // Liga o motor visual quando abrimos o app
+        if (gameView != null) { gameView.iniciarDesenho(); } // Liga o motor visual quando abrimos o app
     }
 
     @Override
     public void onPause(){
         super.onPause();
-        gameView.pausarDesenho(); // Pausa o motor visual se o app for minimizado
+        if (gameView != null) { gameView.pausarDesenho(); } // Pausa o motor visual se o app for minimizado
     }
 }
