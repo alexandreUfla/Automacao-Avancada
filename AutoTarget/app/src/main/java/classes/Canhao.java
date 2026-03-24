@@ -1,5 +1,7 @@
 package classes;
 import classes.Jogo;
+import classes.Alvo;
+
 
 public class Canhao extends Thread{
     private double x, y;
@@ -20,7 +22,34 @@ public class Canhao extends Thread{
     @Override
     public void run(){
         while (ativo){
+            Alvo alvoMaisProximo = jogo.getAlvoMaisProximo(x, y, isLadoEsquerdo);
 
+            if (alvoMaisProximo != null){
+                Projetil p = new Projetil(this.x, this.y, alvoMaisProximo.getX(), alvoMaisProximo.getY(), jogo, isLadoEsquerdo);
+                jogo.adicionarProjetil(p);
+                p.start();
+            }
+
+            // Cálculo da penalidade de tempo de recarga
+            int qtdCanhoesLado = jogo.getQtdCanhoes(isLadoEsquerdo);
+            long tempoRecarga = 1000; // 1 segundo base
+            if (qtdCanhoesLado > 5) {
+                tempoRecarga += (qtdCanhoesLado - 5) * 200; // +200ms por canhão extra
+            }
+
+            try{
+                Thread.sleep(tempoRecarga);
+            } catch (InterruptedException e){
+                Thread.currentThread().interrupt();
+            }
         }
+    }
+
+    public void desligar(){
+        this.ativo = false;
+    }
+
+    public boolean isLadoEsquerdo(){
+        return isLadoEsquerdo;
     }
 }
