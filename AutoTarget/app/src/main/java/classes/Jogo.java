@@ -133,6 +133,15 @@ public class Jogo extends Thread{
         return count;
     }
 
+    // Atualiza a posição de tudo na tela
+    public void atualizar(){
+        for (Alvo alvo : alvos){
+            if (alvo.isAtivo()){
+                alvo.mover();
+            }
+        }
+    }
+
     public double getLarguraTela(){
         return larguraTela;
     }

@@ -2,7 +2,7 @@ package classes;
 
 public abstract class Alvo extends Thread{
     protected double x, y;
-    protected double raio = 10;
+    protected double raio = 25;
     protected double velocidade;
     protected volatile boolean ativo = true;
     protected Jogo jogo;

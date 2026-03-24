@@ -1,12 +1,12 @@
 package com.example.autotarget;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
+import android.app.Activity;
 import classes.AlvoComum;
 import classes.AlvoRapido;
 import classes.GameView;
 import classes.Jogo;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     private GameView gameView;
     private Jogo jogo;
 
@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Adiciona alguns alvos de teste para ver na tela
         jogo.adicionarAlvo(new AlvoComum(200, 200, jogo));
-        jogo.adicionarAlvo(new AlvoRapido(800, 500, jogo));
+        jogo.adicionarAlvo(new AlvoRapido(300, 300, jogo));
 
         // 2. Cria a tela visual passando a lógica do jogo para ela
         gameView = new GameView(this, jogo);

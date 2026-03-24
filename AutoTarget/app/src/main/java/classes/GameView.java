@@ -46,41 +46,53 @@ public class GameView extends SurfaceView implements Runnable {
                 continue;
             }
 
-            // 1. "Tranca" a tela para começar a desenhar
-            Canvas canvas = prancheta.lockCanvas();
-
-            // 2. Limpa a tela pintando o fundo de preto
-            canvas.drawColor(Color.BLACK);
-
-            // 3. Desenha a linha divisória no meio
-            float meioX = canvas.getWidth() / 2f;
-
-            // 4. Desenha os Alvos (Círculos)
-            // Usamos try-catch pois a lista pode mudar enquanto desenhamos
-            try{
-                for(Alvo alvo : jogo.getAlvos()){
-                    if (alvo.isAtivo()){
-                        Paint cor = (alvo instanceof AlvoRapido) ? paintAlvoRapido : paintAlvoComum;
-                        canvas.drawCircle((float) alvo.getX(), (float) alvo.getY(), (float) alvo.getRaio(), cor);
-
-                    }
-                }
-
-                // 5. Desenha os Canhões (Vou representá-los como quadrados para facilitar no começo)
-                for (Canhao canhao : jogo.getCanhoes()){
-                    canvas.drawRect((float) canhao.getX() - 20, (float) canhao.getY() - 20, (float) canhao.getX() + 20, (float) canhao.getY() + 20, paintCanhao);
-                }
-
-                // 6. Desenha os Projéteis (Círculos pequenos)
-                for (Projetil p : jogo.getProjeteis()){
-                    canvas.drawCircle((float) p.getX(), (float) p.getY(), 5, paintProjetil);
-                }
-            } catch (Exception e){
-                // Ignora erros de concorrência na hora de desenhar para não travar o jogo
+            // Movimento das bolinhas
+            if (jogo != null){
+                jogo.atualizar();
             }
 
-            // 7. "Destranca" a tela e mostra o desenho final para o jogador
-            prancheta.unlockCanvasAndPost(canvas);
+            Canvas canvas = null;
+            try {
+                // 1. "Tranca" a tela para começar a desenhar
+                canvas = prancheta.lockCanvas();
+
+                if (canvas != null){
+                    // 2. Limpa a tela pintando o fundo de preto
+                    canvas.drawColor(Color.BLACK);
+
+                    // 3. Desenha a linha divisória no meio
+                    float meioX = canvas.getWidth() / 2f;
+
+                    // Desenha a linha do meio da tela
+                    canvas.drawLine(meioX, 0, meioX, canvas.getHeight(), paintLinha);
+
+                    // 4. Desenha os Alvos (Círculos)
+                    for(Alvo alvo : jogo.getAlvos()){
+                        if (alvo.isAtivo()){
+                            Paint cor = (alvo instanceof AlvoRapido) ? paintAlvoRapido : paintAlvoComum;
+                            canvas.drawCircle((float) alvo.getX(), (float) alvo.getY(), (float) alvo.getRaio(), cor);
+
+                        }
+                    }
+
+                    // 5. Desenha os Canhões (Vou representá-los como quadrados para facilitar no começo)
+                    for (Canhao canhao : jogo.getCanhoes()){
+                        canvas.drawRect((float) canhao.getX() - 20, (float) canhao.getY() - 20, (float) canhao.getX() + 20, (float) canhao.getY() + 20, paintCanhao);
+                    }
+
+                    // 6. Desenha os Projéteis (Círculos pequenos)
+                    for (Projetil p : jogo.getProjeteis()){
+                        canvas.drawCircle((float) p.getX(), (float) p.getY(), 5, paintProjetil);
+                    }
+                }
+            } catch (Exception e){
+                e.printStackTrace(); // Imprimir o erro no Logcat para saber se algo deu ruim
+            } finally {
+                if (canvas != null){
+                    // 7. "Destranca" a tela e mostra o desenho final para o jogador
+                    prancheta.unlockCanvasAndPost(canvas);
+                }
+            }
         }
     }
 
