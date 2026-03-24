@@ -8,7 +8,7 @@ public abstract class Alvo extends Thread{
     protected volatile boolean ativo = true;
     protected Jogo jogo;
 
-    public Alvo(double x, double y, double jogo){
+    public Alvo(double x, double y, Jogo jogo){
         this.x = x;
         this.y = y;
         this.jogo = jogo;
@@ -28,7 +28,7 @@ public abstract class Alvo extends Thread{
             limitesTela();
             try{
                 // ~30 frames por segundo para a atualização de física
-                Thead.sleep(30);
+                Thread.sleep(30);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -54,4 +54,5 @@ public abstract class Alvo extends Thread{
     public double getRaio(){
         return raio;
     }
+    public boolean isAtivo(){ return ativo; }
 }
