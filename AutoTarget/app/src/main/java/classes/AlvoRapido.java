@@ -8,7 +8,7 @@ public class AlvoRapido extends Alvo{
     @Override
     public void mover(){
         // Movimento errático e rápido
-        x -= velocidade * (Math.random() > 0.5 ? 1 : -0.5);
-        y += velocidade * (Math.random() > 0.5 ? 1 : -1);
+        x -= velocidade; // * (Math.random() > 0.5 ? 1 : -0.5);
+        y += velocidade * 0.5; // * (Math.random() > 0.5 ? 1 : -1);
     }
 }
