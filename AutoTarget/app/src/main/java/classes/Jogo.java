@@ -16,17 +16,38 @@ public class Jogo extends Thread{
 
     private int pontosEsquerda = 0;
     private int pontosDireita = 0;
-    private volatile boolean rodando = true;
+    private volatile boolean rodando = false;
 
     @Override
     public void run(){
-        // Loop principal do jogo (pode ser usado para atualizar o timede 60s, telemetria, etc.)
+        rodando = true;
+        // Loop principal do jogo e cronômetro (pode ser usado para atualizar o timede 60s, telemetria, etc.)
         long startTime = System.currentTimeMillis();
+        long ultimoSpawn = startTime;
+
         while (rodando){
-            if (System.currentTimeMillis() - startTime > 60000){
-                rodando = false; // Fim de jogo após 60s
+            long agora = System.currentTimeMillis();
+            if (agora - startTime > 60000) { // Fim de jogo
+                rodando = false;
             }
-            try{
+            if (agora - ultimoSpawn > 2000) { // Spawn de alvos a cada 2 segundos
+                double randomX = Math.random() * larguraTela;
+                double randomY = Math.random() * (alturaTela / 2); // Nasce do "céu"
+
+                Alvo novoAlvo;
+                if (Math.random() > 0.3) {
+                    novoAlvo = new AlvoComum(randomX, randomY, this);
+                } else {
+                    novoAlvo = new AlvoRapido(randomX, randomY, this); // 30% de chance de ser o alvo rápido
+                }
+
+                adicionarAlvo(novoAlvo);
+                novoAlvo.start(); // Inicia a thread do alvo
+
+                ultimoSpawn = agora;
+            }
+
+            try {
                 Thread.sleep(100);
             } catch (InterruptedException e){
                 Thread.currentThread().interrupt();
@@ -170,5 +191,9 @@ public class Jogo extends Thread{
     }
     public int getPontosDireita(){
         return pontosDireita;
+    }
+
+    public boolean isRodando(){
+        return rodando;
     }
 }

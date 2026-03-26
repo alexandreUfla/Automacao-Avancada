@@ -56,6 +56,12 @@ public class MainActivity extends Activity {
                     if (jogo != null) {
                         textAbatesA.setText("Abates: " + jogo.getPontosEsquerda());
                         textAbatesB.setText("Abates: " + jogo.getPontosDireita());
+
+                        if (!jogo.isRodando() && !btnIniciar.isEnabled()) {
+                            btnIniciar.setEnabled(true); // Re-habilita o botão
+                            btnIniciar.setText("Jogar Novamente (60s)");
+                            btnIniciar.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#FF9800")));
+                        }
                     }
                 });
                 try {
@@ -68,46 +74,44 @@ public class MainActivity extends Activity {
     }
 
     private void ConfigurarBotoes(){
-        // Ao clicar em Iniciar
+        // Dinâmica do botão Iniciar e Reiniciar
         btnIniciar.setOnClickListener(v -> {
-            try {
-                // Inicia a Thread do jogo e desabilita o botão para não clicar 2 vezes
-                jogo.start();
-                btnIniciar.setEnabled(false);
-                btnIniciar.setText("Partida em andamento...");
+            if (jogo == null || !jogo.isRodando()) {
+                // Destruimos o jogo velho e criamos um novo
+                jogo = new Jogo();
+                gameView.setJogo(jogo);
 
-                // Adiciona alguns alvos iniciais para testar
-                AlvoComum a1 = new AlvoComum(300,300,jogo);
-                AlvoRapido a2 = new AlvoRapido(600,500,jogo);
-                
-                jogo.adicionarAlvo(a1);
-                a1.start();
-                
-                jogo.adicionarAlvo(a2);
-                a2.start();
-            } catch (IllegalThreadStateException e) {
-                // Se o botão for clicado e a thread já estiver rodando
-                Toast.makeText(this, "A partida já começou!", Toast.LENGTH_SHORT).show();
+                // Trava a interface durante os 60 segundos vitais
+                btnIniciar.setEnabled(false);
+                btnIniciar.setText("Batalha de máquinas em andamento...");
+                btnIniciar.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#707070ff")));
+
+                // Libera o jogo para iniciar novamente
+                jogo.start();
+            } else {
+                Toast.makeText(this, "Aguarde os 60 segundos para a partida acabar!", Toast.LENGTH_SHORT).show();
             }
         });
         
-        // Ao clicar em + Canhão A
+        // Ao clicar em ADD Canhão A
         btnCanhaoA.setOnClickListener(v -> {
             try {
-                // Tenta adicionar no lado esquerdo da tela
-                // A altura (Y) vamos colocar fixo perto do rodapé por enquanto
-                jogo.adicionarCanhao(200,1500);
+                // Posiciona aleatóriamente na Zona Esquerda (10% a 40% da tela) para nãoficarem grudados
+                double posX = jogo.getLarguraTela() * (0.1 + Math.random() * 0.3);
+                double posY = jogo.getAlturaTela() - 20;
+                jogo.adicionarCanhao(posX,posY);
             } catch (Exception e) { // Trata a excessão de limite máximo
                 Toast.makeText(this,"Erro: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
-        // Ao clicar em + Canhão B
+        // Ao clicar em ADD Canhão B
         btnCanhaoB.setOnClickListener(v -> {
             try {
-                // Tenta adicionar no lado direito da tela
-                // A altura (Y) vamos colocar fixo perto do rodapé por enquanto
-                jogo.adicionarCanhao(800,1500);
+                // Posiciona aleatóriamente na Zona Direita (60% a 90% da tela)
+                double posX = jogo.getLarguraTela() * (0.6 + Math.random() * 0.3);
+                double posY = jogo.getAlturaTela() - 20;
+                jogo.adicionarCanhao(posX,posY);
             } catch (Exception e) { // Trata a excessão de limite máximo
                 Toast.makeText(this,"Erro: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }

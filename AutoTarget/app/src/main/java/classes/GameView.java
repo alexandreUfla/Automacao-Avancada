@@ -27,7 +27,6 @@ public class GameView extends SurfaceView implements Runnable {
         paintAlvoRapido.setColor(Color.RED);
 
         paintCanhao = new Paint();
-        paintCanhao.setColor(Color.GREEN);
 
         paintProjetil = new Paint();
         paintProjetil.setColor(Color.YELLOW);
@@ -77,12 +76,17 @@ public class GameView extends SurfaceView implements Runnable {
 
                     // 5. Desenha os Canhões (Vou representá-los como quadrados para facilitar no começo)
                     for (Canhao canhao : jogo.getCanhoes()){
-                        canvas.drawRect((float) canhao.getX() - 20, (float) canhao.getY() - 20, (float) canhao.getX() + 20, (float) canhao.getY() + 20, paintCanhao);
+                        if (canhao.isLadoEsquerdo()) {
+                            paintCanhao.setColor(Color.GREEN);
+                        } else {
+                            paintCanhao.setColor(Color.parseColor("#FF9800"));
+                        }
+                        canvas.drawRect((float) canhao.getX() - 15, (float) canhao.getY() - 32, (float) canhao.getX() + 15, (float) canhao.getY() + 32, paintCanhao);
                     }
 
                     // 6. Desenha os Projéteis (Círculos pequenos)
                     for (Projetil p : jogo.getProjeteis()){
-                        canvas.drawCircle((float) p.getX(), (float) p.getY(), 5, paintProjetil);
+                        canvas.drawCircle((float) p.getX(), (float) p.getY(), 8, paintProjetil);
                     }
                 }
             } catch (Exception e){
@@ -111,5 +115,9 @@ public class GameView extends SurfaceView implements Runnable {
         } catch (InterruptedException e){
             e.printStackTrace();
         }
+    }
+
+    public void setJogo(Jogo novoJogo) {
+        this.jogo = novoJogo;
     }
 }
