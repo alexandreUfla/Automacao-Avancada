@@ -46,17 +46,17 @@ public class GameView extends SurfaceView implements Runnable {
                 continue;
             }
 
-            // Movimento das bolinhas
-            if (jogo != null){
-                jogo.atualizar();
-            }
-
             Canvas canvas = null;
             try {
                 // 1. "Tranca" a tela para começar a desenhar
                 canvas = prancheta.lockCanvas();
 
                 if (canvas != null){
+                    // Passa o tamanho da caixinha física pro Jogo antes de tudo
+                    if (jogo != null) {
+                        jogo.setLarguraTela(canvas.getWidth());
+                        jogo.setAlturaTela(canvas.getHeight());
+                    }
                     // 2. Limpa a tela pintando o fundo de preto
                     canvas.drawColor(Color.BLACK);
 

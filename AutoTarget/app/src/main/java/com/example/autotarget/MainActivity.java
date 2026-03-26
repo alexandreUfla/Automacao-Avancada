@@ -77,8 +77,14 @@ public class MainActivity extends Activity {
                 btnIniciar.setText("Partida em andamento...");
 
                 // Adiciona alguns alvos iniciais para testar
-                jogo.adicionarAlvo(new AlvoComum(300,300,jogo));
-                jogo.adicionarAlvo(new AlvoRapido(600,500,jogo));
+                AlvoComum a1 = new AlvoComum(300,300,jogo);
+                AlvoRapido a2 = new AlvoRapido(600,500,jogo);
+                
+                jogo.adicionarAlvo(a1);
+                a1.start();
+                
+                jogo.adicionarAlvo(a2);
+                a2.start();
             } catch (IllegalThreadStateException e) {
                 // Se o botão for clicado e a thread já estiver rodando
                 Toast.makeText(this, "A partida já começou!", Toast.LENGTH_SHORT).show();

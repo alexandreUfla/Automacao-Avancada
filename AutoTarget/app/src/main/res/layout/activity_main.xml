@@ -20,25 +20,31 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical">
+
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Sistema A"
+                android:textAlignment="center"
+                android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 android:textStyle="bold" />
+
             <TextView
                 android:id="@+id/textAbatesA"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:text="Abates: 0"
-                android:textSize="18sp"
-                android:layout_marginTop="8dp" />
+                android:textAlignment="center"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
         </LinearLayout>
 
         <!-- Divisória (linha vertical no meio da tela) -->
         <View
             android:layout_width="4dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="#E8E8E8"
             android:layout_marginHorizontal="8dp" />
 
@@ -49,19 +55,25 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="end">
+
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Sistema B"
                 android:textSize="20sp"
+                android:textColor="#FFFFFF"
+                android:textAlignment="center"
                 android:textStyle="bold" />
+
             <TextView
                 android:id="@+id/textAbatesB"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:text="Abates: 0"
-                android:textSize="18sp"
-                android:layout_marginTop="8dp" />
+                android:textColor="#FFFFFF"
+                android:textAlignment="center"
+                android:textSize="18sp" />
         </LinearLayout>
     </LinearLayout>
 
@@ -90,33 +102,35 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginBottom="8dp">
+
             <Button
                 android:id="@+id/btnCanhaoA"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="72dp"
+                android:layout_marginEnd="4dp"
                 android:layout_weight="1"
-                android:text="+ Canhão A"
                 android:backgroundTint="#FFFFFF"
-                android:textColor="#000000"
-                android:layout_marginEnd="4dp" />
+                android:text="ADD Canhão"
+                android:textColor="#000000" />
+
             <Button
                 android:id="@+id/btnCanhaoB"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="72dp"
+                android:layout_marginEnd="4dp"
                 android:layout_weight="1"
-                android:text="+ Canhão B"
                 android:backgroundTint="#FFFFFF"
-                android:textColor="#000000"
-                android:layout_marginEnd="4dp" />
+                android:text="ADD Canhão"
+                android:textColor="#000000" />
         </LinearLayout>
 
         <!-- Botão Iniciar Partida -->
         <Button
             android:id="@+id/btnIniciar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Iniciar Partida (60s)"
+            android:layout_height="67dp"
             android:backgroundTint="#2F9E58"
+            android:text="Iniciar Partida (60s)"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:textStyle="bold" />

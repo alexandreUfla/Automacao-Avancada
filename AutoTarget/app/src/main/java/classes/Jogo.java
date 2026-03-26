@@ -133,20 +133,18 @@ public class Jogo extends Thread{
         return count;
     }
 
-    // Atualiza a posição de tudo na tela
-    public void atualizar(){
-        for (Alvo alvo : alvos){
-            if (alvo.isAtivo()){
-                alvo.mover();
-            }
-        }
-    }
-
     public double getLarguraTela(){
         return larguraTela;
     }
     public double getAlturaTela(){
         return alturaTela;
+    }
+
+    public void setLarguraTela(double largura){
+        this.larguraTela = largura;
+    }
+    public void setAlturaTela(double altura){
+        this.alturaTela = altura;
     }
 
     // Cópias seguras das listas usando cadeado
