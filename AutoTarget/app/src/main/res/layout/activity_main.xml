@@ -1,10 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:orientation="vertical"
+    android:background="#121212"
+    android:weightSum="10">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- 1. CABEÇALHO (Placar Sistema A vs Sistema B) (Ocupa peso 2 da tela) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <!-- Lado Esquerdo (Sistema A) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sistema A"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/textAbatesA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Abates: 0"
+                android:textSize="18sp"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+
+        <!-- Divisória (linha vertical no meio da tela) -->
+        <View
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="#E8E8E8"
+            android:layout_marginHorizontal="8dp" />
+
+        <!-- Lado Direito (Sistema B) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="end">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sistema B"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/textAbatesB"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Abates: 0"
+                android:textSize="18sp"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- 2. ÁREA DO JOGO (Canvas) (Ocupa peso 6 na tela) -->
+    <!-- Este FrameLayout seráo "pote" onde colocaremos nosso GameView pelo Java -->
+    <FrameLayout
+        android:id="@+id/gameContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="6"
+        android:background="#333333"
+        android:layout_margin="8dp">
+    </FrameLayout>
+
+    <!-- 3. RODAPÉ (Botões de Ação) (Ocupa peso 2 da tela) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <!-- Botões de Adicionar Canhão esquerdo e direito -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+            <Button
+                android:id="@+id/btnCanhaoA"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="+ Canhão A"
+                android:backgroundTint="#FFFFFF"
+                android:textColor="#000000"
+                android:layout_marginEnd="4dp" />
+            <Button
+                android:id="@+id/btnCanhaoB"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="+ Canhão B"
+                android:backgroundTint="#FFFFFF"
+                android:textColor="#000000"
+                android:layout_marginEnd="4dp" />
+        </LinearLayout>
+
+        <!-- Botão Iniciar Partida -->
+        <Button
+            android:id="@+id/btnIniciar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Iniciar Partida (60s)"
+            android:backgroundTint="#2F9E58"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

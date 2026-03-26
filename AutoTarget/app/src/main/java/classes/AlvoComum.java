@@ -8,7 +8,7 @@ public class AlvoComum extends Alvo{
     @Override
     public void mover(){
         // Movimento simples e linear
-        x += velocidade;
-        y += velocidade * 0.5;
+        x += velocidade * dx;
+        y += velocidade * 0.5 * dy;
     }
 }

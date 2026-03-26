@@ -4,6 +4,8 @@ public abstract class Alvo extends Thread{
     protected double x, y;
     protected double raio = 25;
     protected double velocidade;
+    protected double dx = 1;
+    protected double dy = 1;
     protected volatile boolean ativo = true;
     protected Jogo jogo;
 
@@ -35,10 +37,23 @@ public abstract class Alvo extends Thread{
     }
 
     private void limitesTela(){
-        if (x < 0) x = jogo.getLarguraTela();
-        if (x > jogo.getLarguraTela()) x = 0;
-        if (y < 0) y = jogo.getAlturaTela();
-        if (y > jogo.getAlturaTela()) y = 0;
+        // Se bater na borda esquerda ou direita, inverte o direção X
+        if (x - raio < 0) {
+            x = raio;
+            dx = dx * (-1);
+        } else if (x + raio > jogo.getLarguraTela()) {
+            x = jogo.getLarguraTela() - raio;
+            dx = dx * (-1);
+        }
+
+        // Se bater no teto ou chão, inverte a direção Y
+        if (y - raio < 0) {
+            y = raio;
+            dy = dy * (-1);
+        } else if (y + raio > jogo.getAlturaTela()) {
+            y = jogo.getAlturaTela() - raio;
+            dy = dy * (-1);
+        }
     }
 
     public void destruir(){

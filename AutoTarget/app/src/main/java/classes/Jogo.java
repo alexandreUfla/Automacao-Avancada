@@ -148,7 +148,29 @@ public class Jogo extends Thread{
     public double getAlturaTela(){
         return alturaTela;
     }
-    public List<Alvo> getAlvos() { return alvos; }
-    public List<Canhao> getCanhoes() { return canhoes; }
-    public List<Projetil> getProjeteis() { return projeteis; }
+
+    // Cópias seguras das listas usando cadeado
+    public List<Alvo> getAlvos() { 
+        synchronized (lockListas) {
+            return new ArrayList<>(alvos);
+        } 
+    }
+    public List<Canhao> getCanhoes() {
+        synchronized (lockListas) {
+            return new ArrayList<>(canhoes);
+        } 
+    }
+    public List<Projetil> getProjeteis() { 
+        synchronized (lockListas) {
+            return new ArrayList<>(projeteis);
+        } 
+    }
+
+    // Método para a tela conseguir ler quem está ganhando
+    public int getPontosEsquerda(){
+        return pontosEsquerda;
+    }
+    public int getPontosDireita(){
+        return pontosDireita;
+    }
 }
