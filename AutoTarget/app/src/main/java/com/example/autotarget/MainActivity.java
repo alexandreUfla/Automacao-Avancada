@@ -3,6 +3,7 @@ package com.example.autotarget;
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,11 +22,14 @@ public class MainActivity extends Activity {
     private TextView textAbatesB;
     private TextView textEnergiaA;
     private TextView textEnergiaB;
+    private TextView textVencedor;
     private Button btnIniciar;
     private Button btnAddCanhaoA;
     private Button btnRemCanhaoA;
     private Button btnAddCanhaoB;
     private Button btnRemCanhaoB;
+    private ProgressBar progressEnergiaA;
+    private ProgressBar progressEnergiaB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,18 +42,23 @@ public class MainActivity extends Activity {
         FrameLayout container = findViewById(R.id.gameContainer);
         textAbatesA = findViewById(R.id.textAbatesA);
         textAbatesB = findViewById(R.id.textAbatesB);
+        textEnergiaA = findViewById(R.id.textEnergiaA);
+        textEnergiaB = findViewById(R.id.textEnergiaB);
         btnIniciar = findViewById(R.id.btnIniciar);
         btnAddCanhaoA = findViewById(R.id.btnAddCanhaoA);
         btnRemCanhaoA = findViewById(R.id.btnRemCanhaoA);
         btnAddCanhaoB = findViewById(R.id.btnAddCanhaoB);
         btnRemCanhaoB = findViewById(R.id.btnRemCanhaoB);
+        progressEnergiaA = findViewById(R.id.progressEnergiaA);
+        progressEnergiaB = findViewById(R.id.progressEnergiaB);
+        textVencedor = findViewById(R.id.textVencedor);
         
         // Inicializar a lógica do jogo e vizual
         jogo = new Jogo();
         gameView = new GameView(this, jogo);
 
         // Colocar o desenho do jogo dentro do FrameLayout do XML
-        container.addView(gameView);
+        container.addView(gameView, 0);
 
         // Configurar os cliques dos botões
         ConfigurarBotoes();
@@ -64,11 +73,20 @@ public class MainActivity extends Activity {
                         textAbatesB.setText("Abates: " + jogo.getPontosDireita());
                         textEnergiaA.setText("Energia: " + jogo.getEnergiaEsquerda());
                         textEnergiaB.setText("Energia: " + jogo.getEnergiaDireita());
+                        progressEnergiaA.setProgress(jogo.getEnergiaEsquerda());
+                        progressEnergiaB.setProgress(jogo.getEnergiaDireita());
 
-                        if (!jogo.isRodando() && !btnIniciar.isEnabled()) {
-                            btnIniciar.setEnabled(true); // Re-habilita o botão
+                        if (!jogo.isRodando()) {
                             btnIniciar.setText("Jogar Novamente (60s)");
                             btnIniciar.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#FF9800")));
+                            textVencedor.setVisibility(android.view.View.VISIBLE);
+                            if (jogo.getPontosEsquerda() > jogo.getPontosDireita()) {
+                                textVencedor.setText("SISTEMA A VENCEU!");
+                            } else if (jogo.getPontosDireita() > jogo.getPontosEsquerda()) {
+                                textVencedor.setText("SISTEMA B VENCEU!");
+                            } else {
+                                textVencedor.setText("EMPATE!");
+                            }
                         }
                     }
                 });
@@ -85,19 +103,22 @@ public class MainActivity extends Activity {
         // Dinâmica do botão Iniciar e Reiniciar
         btnIniciar.setOnClickListener(v -> {
             if (jogo == null || !jogo.isRodando()) {
+                // Esconde o letreiro de vencedor
+                textVencedor.setVisibility(android.view.View.GONE);
+
                 // Destruimos o jogo velho e criamos um novo
                 jogo = new Jogo();
                 gameView.setJogo(jogo);
 
-                // Trava a interface durante os 60 segundos vitais
-                btnIniciar.setEnabled(false);
-                btnIniciar.setText("Batalha de máquinas em andamento...");
-                btnIniciar.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#707070ff")));
+                // Como a partida começou, o botão "vira" um botão de abortar vermelho
+                btnIniciar.setText("Encerrar Batalha");
+                btnIniciar.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#D32F2F")));
 
                 // Libera o jogo para iniciar novamente
                 jogo.start();
             } else {
-                Toast.makeText(this, "Aguarde os 60 segundos para a partida acabar!", Toast.LENGTH_SHORT).show();
+                jogo.encerrar();
+                Toast.makeText(this, "Batalha encerrada!", Toast.LENGTH_SHORT).show();
             }
         });
         

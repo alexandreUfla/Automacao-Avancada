@@ -19,12 +19,19 @@ public class Canhao extends Thread{
     @Override
     public void run(){
         while (ativo){
-            Alvo alvoMaisProximo = jogo.getAlvoMaisProximo(x, y, isLadoEsquerdo);
 
-            if (alvoMaisProximo != null){
-                Projetil p = new Projetil(this.x, this.y, alvoMaisProximo.getX(), alvoMaisProximo.getY(), jogo, isLadoEsquerdo);
-                jogo.adicionarProjetil(p);
-                p.start();
+            // Pergunta para o Jogo se o sistema dele (A ou B) ainda tem saldo positivo
+            boolean temEnergia = isLadoEsquerdo() ? (jogo.getEnergiaEsquerda() > 0) : (jogo.getEnergiaDireita() > 0);
+
+            // Só escaneia alvo e gasta bala se a Força não acabou!
+            if (temEnergia) {
+                Alvo alvoMaisProximo = jogo.getAlvoMaisProximo(x, y, isLadoEsquerdo);
+
+                if (alvoMaisProximo != null){
+                    Projetil p = new Projetil(this.x, this.y, alvoMaisProximo.getX(), alvoMaisProximo.getY(), jogo, isLadoEsquerdo);
+                    jogo.adicionarProjetil(p);
+                    p.start();
+                }
             }
 
             // Cálculo da penalidade de tempo de recarga

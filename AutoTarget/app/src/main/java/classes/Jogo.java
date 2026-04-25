@@ -16,8 +16,8 @@ public class Jogo extends Thread{
 
     private int pontosEsquerda = 0;
     private int pontosDireita = 0;
-    private int energiaEsquerda = 100;
-    private int energiaDireita = 100;
+    private int energiaEsquerda = 150;
+    private int energiaDireita = 150;
     private volatile boolean rodando = false;
 
     @Override
@@ -121,8 +121,16 @@ public class Jogo extends Thread{
                         // Pontuação
                         if (p.isLadoEsquerdo()){
                             pontosEsquerda++;
+                            energiaEsquerda += 10;
+                            if (energiaEsquerda > 150) {
+                                energiaEsquerda = 150;
+                            }
                         } else {
                             pontosDireita++;
+                            energiaDireita += 10;
+                            if (energiaDireita > 150) {
+                                energiaDireita = 150;
+                            }
                         }
                         break; // Projétil só acerta um alvo
                     }
@@ -232,5 +240,9 @@ public class Jogo extends Thread{
                 }
             }
         }
+    }
+
+    public void encerrar () {
+        this.rodando = false;
     }
 }
