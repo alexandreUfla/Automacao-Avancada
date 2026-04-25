@@ -19,9 +19,13 @@ public class MainActivity extends Activity {
     // Componentes da nossa tela
     private TextView textAbatesA;
     private TextView textAbatesB;
+    private TextView textEnergiaA;
+    private TextView textEnergiaB;
     private Button btnIniciar;
-    private Button btnCanhaoA;
-    private Button btnCanhaoB;
+    private Button btnAddCanhaoA;
+    private Button btnRemCanhaoA;
+    private Button btnAddCanhaoB;
+    private Button btnRemCanhaoB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +39,10 @@ public class MainActivity extends Activity {
         textAbatesA = findViewById(R.id.textAbatesA);
         textAbatesB = findViewById(R.id.textAbatesB);
         btnIniciar = findViewById(R.id.btnIniciar);
-        btnCanhaoA = findViewById(R.id.btnCanhaoA);
-        btnCanhaoB = findViewById(R.id.btnCanhaoB);
+        btnAddCanhaoA = findViewById(R.id.btnAddCanhaoA);
+        btnRemCanhaoA = findViewById(R.id.btnRemCanhaoA);
+        btnAddCanhaoB = findViewById(R.id.btnAddCanhaoB);
+        btnRemCanhaoB = findViewById(R.id.btnRemCanhaoB);
         
         // Inicializar a lógica do jogo e vizual
         jogo = new Jogo();
@@ -56,6 +62,8 @@ public class MainActivity extends Activity {
                     if (jogo != null) {
                         textAbatesA.setText("Abates: " + jogo.getPontosEsquerda());
                         textAbatesB.setText("Abates: " + jogo.getPontosDireita());
+                        textEnergiaA.setText("Energia: " + jogo.getEnergiaEsquerda());
+                        textEnergiaB.setText("Energia: " + jogo.getEnergiaDireita());
 
                         if (!jogo.isRodando() && !btnIniciar.isEnabled()) {
                             btnIniciar.setEnabled(true); // Re-habilita o botão
@@ -93,8 +101,8 @@ public class MainActivity extends Activity {
             }
         });
         
-        // Ao clicar em ADD Canhão A
-        btnCanhaoA.setOnClickListener(v -> {
+        // Ao clicar em +A
+        btnAddCanhaoA.setOnClickListener(v -> {
             try {
                 // Posiciona aleatóriamente na Zona Esquerda (10% a 40% da tela) para nãoficarem grudados
                 double posX = jogo.getLarguraTela() * (0.1 + Math.random() * 0.3);
@@ -105,8 +113,15 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Ao clicar em ADD Canhão B
-        btnCanhaoB.setOnClickListener(v -> {
+        // Ao clicar em -A
+        btnRemCanhaoA.setOnClickListener(v -> {
+            if (jogo != null && jogo.isRodando()) {
+                jogo.removerCanhao(true);
+            }
+        });
+
+        // Ao clicar em +B
+        btnAddCanhaoB.setOnClickListener(v -> {
             try {
                 // Posiciona aleatóriamente na Zona Direita (60% a 90% da tela)
                 double posX = jogo.getLarguraTela() * (0.6 + Math.random() * 0.3);
@@ -114,6 +129,13 @@ public class MainActivity extends Activity {
                 jogo.adicionarCanhao(posX,posY);
             } catch (Exception e) { // Trata a excessão de limite máximo
                 Toast.makeText(this,"Erro: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Ao clicar em -B
+        btnRemCanhaoB.setOnClickListener(v -> {
+            if (jogo != null && jogo.isRodando()) {
+                jogo.removerCanhao(false);
             }
         });
     }

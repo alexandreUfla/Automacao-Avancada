@@ -16,6 +16,8 @@ public class Jogo extends Thread{
 
     private int pontosEsquerda = 0;
     private int pontosDireita = 0;
+    private int energiaEsquerda = 100;
+    private int energiaDireita = 100;
     private volatile boolean rodando = false;
 
     @Override
@@ -24,6 +26,7 @@ public class Jogo extends Thread{
         // Loop principal do jogo e cronômetro (pode ser usado para atualizar o timede 60s, telemetria, etc.)
         long startTime = System.currentTimeMillis();
         long ultimoSpawn = startTime;
+        long ultimoSpawnEnergia = startTime;
 
         while (rodando){
             long agora = System.currentTimeMillis();
@@ -45,6 +48,18 @@ public class Jogo extends Thread{
                 novoAlvo.start(); // Inicia a thread do alvo
 
                 ultimoSpawn = agora;
+            }
+
+            // Sistema de Energia (Drena 1 ponto por cada canhão a cada 1 segundo)
+            if (agora - ultimoSpawnEnergia > 1000) {
+                energiaEsquerda -= getQtdCanhoes(true);
+                energiaDireita -= getQtdCanhoes(false);
+
+                // Não deixa a energia ficar negativa
+                if (energiaEsquerda < 0) energiaEsquerda = 0;
+                if (energiaDireita < 0) energiaDireita = 0;
+
+                ultimoSpawnEnergia = agora;
             }
 
             try {
@@ -195,5 +210,27 @@ public class Jogo extends Thread{
 
     public boolean isRodando(){
         return rodando;
+    }
+
+    public int getEnergiaEsquerda(){
+        return energiaEsquerda;
+    }
+
+    public int getEnergiaDireita(){
+        return energiaDireita;
+    }
+
+    // Procura na lista do último canhão daquele lado, manda desligar a sua thread e remove!
+    public void removerCanhao (boolean esquerda) {
+        synchronized (lockListas) {
+            for (int i = canhoes.size() - 1; i >= 0; i--) {
+                Canhao c = canhoes.get(i);
+                if (c.isLadoEsquerdo() == esquerda) {
+                    c.desligar(); // Mata a linha de execução daquele canhão
+                    canhoes.remove(i);
+                    break;
+                }
+            }
+        }
     }
 }

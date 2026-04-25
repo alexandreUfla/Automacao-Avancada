@@ -31,6 +31,15 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/textEnergiaA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Energia: 100"
+                android:textSize="16sp"
+                android:textColor="#2196F3"
+                android:layout_marginTop="4dp" />
+            
+            <TextView
                 android:id="@+id/textAbatesA"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -64,6 +73,15 @@
                 android:textColor="#FFFFFF"
                 android:textAlignment="center"
                 android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textEnergiaB"
+                android:layout_width="wrap_cotent"
+                android:layout_height="wrap_content"
+                android:text="Energia: 100"
+                android:textSize="16sp"
+                android:textColor="#4CAF50"
+                android:layout_marginTop="4dp" />
 
             <TextView
                 android:id="@+id/textAbatesB"
@@ -103,24 +121,43 @@
             android:orientation="horizontal"
             android:layout_marginBottom="8dp">
 
+            <!-- Dupla do Lado A -->
             <Button
-                android:id="@+id/btnCanhaoA"
+                android:id="@+id/btnAddCanhaoA"
                 android:layout_width="0dp"
-                android:layout_height="72dp"
-                android:layout_marginEnd="4dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:backgroundTint="#FFFFFF"
-                android:text="ADD Canhão"
+                android:text="+A"
                 android:textColor="#000000" />
 
             <Button
-                android:id="@+id/btnCanhaoB"
+                android:id="@+id/btnRemCanhaoA"
                 android:layout_width="0dp"
-                android:layout_height="72dp"
-                android:layout_marginEnd="4dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:backgroundTint="#FFFFFF"
-                android:text="ADD Canhão"
+                android:text="-A"
+                android:layout_marginEnd="8dp"
+                android:textColor="#000000" />
+
+            <!-- Dupla do Lado B -->
+            <Button
+                android:id="@+id/btnAddCanhaoB"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="#FFFFFF"
+                android:text="+B"
+                android:textColor="#000000" />
+
+            <Button
+                android:id="@+id/btnRemCanhaoB"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="#FFFFFF"
+                android:text="-B"
                 android:textColor="#000000" />
         </LinearLayout>
 
