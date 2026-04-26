@@ -102,7 +102,7 @@ public class Jogo extends Thread{
         }
     }
 
-    // Região Crítica: Colisão garantindo queapenas 1 projétil valide por vez
+    // Região Crítica: Colisão garantindo que apenas 1 projétil valide por vez
     public void verificarColisao(Projetil p){
         synchronized (lockColisao){
             synchronized (lockListas){

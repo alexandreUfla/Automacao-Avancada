@@ -36,7 +36,7 @@ public class GameView extends SurfaceView implements Runnable {
         paintLinha.setStrokeWidth(5); // Linha grossa para dividir o campo
     }
 
-    // Métodoque roda em loop dezenas de vezes por segundo
+    // Método que roda em loop dezenas de vezes por segundo
     @Override
     public void run(){
         while(desenhando){
