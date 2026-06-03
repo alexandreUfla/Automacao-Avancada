@@ -16,6 +16,8 @@ import classes.Jogo;
 public class MainActivity extends Activity {
     private GameView gameView;
     private Jogo jogo;
+    private volatile boolean atualizandoPlacar = true;
+    private boolean partidaJogada = false;
 
     // Componentes da nossa tela
     private TextView textAbatesA;
@@ -65,7 +67,7 @@ public class MainActivity extends Activity {
 
         // Atualizador manual de Placar
         new Thread(() -> {
-            while (true) {
+            while (atualizandoPlacar) {
                 // runOnUiThread força a mudança visual a acontecer na Thread principal
                 runOnUiThread(() -> {
                     if (jogo != null) {
@@ -76,7 +78,7 @@ public class MainActivity extends Activity {
                         progressEnergiaA.setProgress(jogo.getEnergiaEsquerda());
                         progressEnergiaB.setProgress(jogo.getEnergiaDireita());
 
-                        if (!jogo.isRodando()) {
+                        if (!jogo.isRodando() && partidaJogada) {
                             btnIniciar.setText("Jogar Novamente (60s)");
                             btnIniciar.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#FF9800")));
                             textVencedor.setVisibility(android.view.View.VISIBLE);
@@ -87,6 +89,10 @@ public class MainActivity extends Activity {
                             } else {
                                 textVencedor.setText("EMPATE!");
                             }
+                        } else if (!partidaJogada) {
+                            // Garante que o texto de vencedor esteja escondido antes de jogar
+                            textVencedor.setVisibility(android.view.View.GONE);
+                            btnIniciar.setText("Iniciar Batalha");
                         }
                     }
                 });
@@ -103,6 +109,7 @@ public class MainActivity extends Activity {
         // Dinâmica do botão Iniciar e Reiniciar
         btnIniciar.setOnClickListener(v -> {
             if (jogo == null || !jogo.isRodando()) {
+                partidaJogada = true;
                 // Esconde o letreiro de vencedor
                 textVencedor.setVisibility(android.view.View.GONE);
 
@@ -171,5 +178,14 @@ public class MainActivity extends Activity {
     public void onPause(){
         super.onPause();
         if (gameView != null) { gameView.pausarDesenho(); } // Pausa o motor visual se o app for minimizado
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        atualizandoPlacar = false;
+        if (jogo != null) {
+            jogo.encerrar();
+        }
     }
 }

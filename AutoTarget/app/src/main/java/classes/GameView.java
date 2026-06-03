@@ -42,6 +42,7 @@ public class GameView extends SurfaceView implements Runnable {
         while(desenhando){
             // Só desenha se a prancheta estiver pronta
             if (!prancheta.getSurface().isValid()){
+                try { Thread.sleep(16); } catch (InterruptedException ignored) {}
                 continue;
             }
 
@@ -59,23 +60,28 @@ public class GameView extends SurfaceView implements Runnable {
                     // 2. Limpa a tela pintando o fundo de preto
                     canvas.drawColor(Color.BLACK);
 
-                    // 3. Desenha a linha divisória no meio
+                    // 3. Desenha a linha divisória no meio (apenas na zona dos canhões, 10% da tela)
                     float meioX = canvas.getWidth() / 2f;
 
-                    // Desenha a linha do meio da tela
-                    canvas.drawLine(meioX, 0, meioX, canvas.getHeight(), paintLinha);
+                                        // Desenha a linha do meio apenas nos 10% inferiores da tela
+                    float inicioLinhaY = canvas.getHeight() * 0.9f;
+                    canvas.drawLine(meioX, inicioLinhaY, meioX, canvas.getHeight(), paintLinha);
 
                     // 4. Desenha os Alvos (Círculos)
                     for(Alvo alvo : jogo.getAlvos()){
                         if (alvo.isAtivo()){
-                            Paint cor = (alvo instanceof AlvoRapido) ? paintAlvoRapido : paintAlvoComum;
+                            Paint cor = new Paint();
+                            cor.setColor(alvo.getCor());
                             canvas.drawCircle((float) alvo.getX(), (float) alvo.getY(), (float) alvo.getRaio(), cor);
-
                         }
                     }
 
                     // 5. Desenha os Canhões (Vou representá-los como quadrados para facilitar no começo)
-                    for (Canhao canhao : jogo.getCanhoes()){
+                    for (int c = 0; c < jogo.getCanhoes().size(); c++){
+                        Canhao canhao = jogo.getCanhoes().get(c);
+                        
+                        // Position is managed by OtimizadorManager; no manual X update needed
+
                         if (canhao.isLadoEsquerdo()) {
                             paintCanhao.setColor(Color.GREEN);
                         } else {
@@ -90,13 +96,15 @@ public class GameView extends SurfaceView implements Runnable {
                     }
                 }
             } catch (Exception e){
-                e.printStackTrace(); // Imprimir o erro no Logcat para saber se algo deu ruim
+                e.printStackTrace();
             } finally {
                 if (canvas != null){
                     // 7. "Destranca" a tela e mostra o desenho final para o jogador
                     prancheta.unlockCanvasAndPost(canvas);
                 }
             }
+            // Limita o loop a ~60 FPS para não consumir CPU desnecessariamente
+            try { Thread.sleep(16); } catch (InterruptedException ignored) {}
         }
     }
 

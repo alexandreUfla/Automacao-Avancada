@@ -3,7 +3,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Jogo extends Thread{
-    private List<Alvo> alvos = new ArrayList<>();
+    private List<Alvo> alvosEsquerda = new ArrayList<>();
+    private List<Alvo> alvosDireita = new ArrayList<>();
     private List<Canhao> canhoes = new ArrayList<>();
     private List<Projetil> projeteis = new ArrayList<>();
 
@@ -11,19 +12,23 @@ public class Jogo extends Thread{
     private final Object lockListas = new Object();
     private final Object lockColisao = new Object();
 
+    private OtimizadorManager otimizador;
+
     private double larguraTela = 1080; // Mock de tamanho de tela
     private double alturaTela = 1920;
 
-    private int pontosEsquerda = 0;
-    private int pontosDireita = 0;
-    private int energiaEsquerda = 150;
-    private int energiaDireita = 150;
+    private volatile int pontosEsquerda = 0;
+    private volatile int pontosDireita = 0;
+    private volatile int energiaEsquerda = 100; // AV2: Energia inicial 100
+    private volatile int energiaDireita = 100;
     private volatile boolean rodando = false;
 
     @Override
     public void run(){
         rodando = true;
-        // Loop principal do jogo e cronômetro (pode ser usado para atualizar o timede 60s, telemetria, etc.)
+        otimizador = new OtimizadorManager(this);
+        otimizador.start();
+        
         long startTime = System.currentTimeMillis();
         long ultimoSpawn = startTime;
         long ultimoSpawnEnergia = startTime;
@@ -41,7 +46,7 @@ public class Jogo extends Thread{
                 if (Math.random() > 0.3) {
                     novoAlvo = new AlvoComum(randomX, randomY, this);
                 } else {
-                    novoAlvo = new AlvoRapido(randomX, randomY, this); // 30% de chance de ser o alvo rápido
+                    novoAlvo = new AlvoRapido(randomX, randomY, this);
                 }
 
                 adicionarAlvo(novoAlvo);
@@ -55,7 +60,6 @@ public class Jogo extends Thread{
                 energiaEsquerda -= getQtdCanhoes(true);
                 energiaDireita -= getQtdCanhoes(false);
 
-                // Não deixa a energia ficar negativa
                 if (energiaEsquerda < 0) energiaEsquerda = 0;
                 if (energiaDireita < 0) energiaDireita = 0;
 
@@ -68,24 +72,54 @@ public class Jogo extends Thread{
                 Thread.currentThread().interrupt();
             }
         }
-        // Encerrar todas as Threads filhas
-        // (Lógica de encerramento omitida para brevidade)
+        
+        if (otimizador != null) otimizador.desligar();
+
+        // Encerrar todas as Threads filhas adequadamente (Fix AV1)
+        synchronized(lockListas) {
+            for (Alvo a : alvosEsquerda) { a.destruir(); a.interrupt(); }
+            for (Alvo a : alvosDireita) { a.destruir(); a.interrupt(); }
+            for (Canhao c : canhoes) { c.desligar(); c.interrupt(); }
+            for (Projetil p : projeteis) { p.destruir(); p.interrupt(); }
+        }
     }
 
     public void adicionarAlvo(Alvo alvo){
         synchronized (lockListas){
-            alvos.add(alvo);
+            if (alvo.getX() < larguraTela / 2.0) {
+                alvosEsquerda.add(alvo);
+            } else {
+                alvosDireita.add(alvo);
+            }
+        }
+    }
+
+    // Mecanismo atômico de transferência de alvo de uma lista para a outra
+    public void verificarTransferencia(Alvo alvo) {
+        synchronized (lockListas) {
+            boolean estaNaEsquerda = (alvo.getX() < larguraTela / 2.0);
+            if (estaNaEsquerda && alvosDireita.contains(alvo)) {
+                alvosDireita.remove(alvo);
+                alvosEsquerda.add(alvo);
+            } else if (!estaNaEsquerda && alvosEsquerda.contains(alvo)) {
+                alvosEsquerda.remove(alvo);
+                alvosDireita.add(alvo);
+            }
         }
     }
 
     public void adicionarCanhao(double x, double y) throws JogoException{
+        Canhao c = null;
         synchronized (lockListas){
             boolean isEsquerda = (x < larguraTela / 2.0);
             if (getQtdCanhoes(isEsquerda) >= 10){
                 throw new JogoException("Limite máximo de canhões atingido para esse lado.");
             }
-            Canhao c = new Canhao(x, y, this);
+            c = new Canhao(x, y, this);
             canhoes.add(c);
+        }
+        // Iniciar fora do lock (Fix AV1)
+        if (c != null) {
             c.start();
         }
     }
@@ -102,12 +136,14 @@ public class Jogo extends Thread{
         }
     }
 
-    // Região Crítica: Colisão garantindo que apenas 1 projétil valide por vez
     public void verificarColisao(Projetil p){
         synchronized (lockColisao){
             synchronized (lockListas){
-                for (int i = 0; i < alvos.size(); i++){
-                    Alvo alvo = alvos.get(i);
+                boolean alvoAtingido = false;
+                
+                // Verifica na esquerda
+                for (int i = 0; i < alvosEsquerda.size(); i++){
+                    Alvo alvo = alvosEsquerda.get(i);
                     double dx = p.getX() - alvo.getX();
                     double dy = p.getY() - alvo.getY();
                     double distancia = Math.sqrt(dx * dx + dy * dy);
@@ -115,24 +151,42 @@ public class Jogo extends Thread{
                     if (distancia < alvo.getRaio()){
                         alvo.destruir();
                         p.destruir();
-                        alvos.remove(i);
+                        alvosEsquerda.remove(i);
                         projeteis.remove(p);
+                        alvoAtingido = true;
+                        break; 
+                    }
+                }
+                
+                // Se não atingiu na esquerda, tenta na direita
+                if (!alvoAtingido) {
+                    for (int i = 0; i < alvosDireita.size(); i++){
+                        Alvo alvo = alvosDireita.get(i);
+                        double dx = p.getX() - alvo.getX();
+                        double dy = p.getY() - alvo.getY();
+                        double distancia = Math.sqrt(dx * dx + dy * dy);
 
-                        // Pontuação
-                        if (p.isLadoEsquerdo()){
-                            pontosEsquerda++;
-                            energiaEsquerda += 10;
-                            if (energiaEsquerda > 150) {
-                                energiaEsquerda = 150;
-                            }
-                        } else {
-                            pontosDireita++;
-                            energiaDireita += 10;
-                            if (energiaDireita > 150) {
-                                energiaDireita = 150;
-                            }
+                        if (distancia < alvo.getRaio()){
+                            alvo.destruir();
+                            p.destruir();
+                            alvosDireita.remove(i);
+                            projeteis.remove(p);
+                            alvoAtingido = true;
+                            break; 
                         }
-                        break; // Projétil só acerta um alvo
+                    }
+                }
+
+                if (alvoAtingido) {
+                    // Pontuação
+                    if (p.isLadoEsquerdo()){
+                        pontosEsquerda++;
+                        energiaEsquerda += 10;
+                        if (energiaEsquerda > 150) energiaEsquerda = 150;
+                    } else {
+                        pontosDireita++;
+                        energiaDireita += 10;
+                        if (energiaDireita > 150) energiaDireita = 150;
                     }
                 }
             }
@@ -140,18 +194,16 @@ public class Jogo extends Thread{
     }
 
     public Alvo getAlvoMaisProximo(double cX, double cY, boolean isLadoEsquerdo){
-        synchronized (lockListas){
+        synchronized (lockListas) {
             Alvo maisProximo = null;
             double menorDistancia = Double.MAX_VALUE;
+            
+            // Pega TODOS os alvos para permitir tiros cruzados
+            List<Alvo> todos = new ArrayList<>();
+            todos.addAll(alvosEsquerda);
+            todos.addAll(alvosDireita);
 
-            // Demonstração de Polimorfismo: percorrendo lista de superclasse
-            for (Alvo alvo : alvos) {
-                // Alo deve estar no mesmo lado do canhão
-                boolean alvoNaEsquerda = (alvo.getX() < larguraTela / 2.0);
-                if (alvoNaEsquerda != isLadoEsquerdo) {
-                    continue;
-                }
-
+            for (Alvo alvo : todos) {
                 double dx = cX - alvo.getX();
                 double dy = cY - alvo.getY();
                 double distancia = Math.sqrt(dx * dx + dy * dy);
@@ -177,64 +229,45 @@ public class Jogo extends Thread{
         return count;
     }
 
-    public double getLarguraTela(){
-        return larguraTela;
-    }
-    public double getAlturaTela(){
-        return alturaTela;
-    }
+    public double getLarguraTela(){ return larguraTela; }
+    public double getAlturaTela(){ return alturaTela; }
+    public void setLarguraTela(double largura){ this.larguraTela = largura; }
+    public void setAlturaTela(double altura){ this.alturaTela = altura; }
 
-    public void setLarguraTela(double largura){
-        this.larguraTela = largura;
-    }
-    public void setAlturaTela(double altura){
-        this.alturaTela = altura;
-    }
-
-    // Cópias seguras das listas usando cadeado
     public List<Alvo> getAlvos() { 
         synchronized (lockListas) {
-            return new ArrayList<>(alvos);
+            List<Alvo> todos = new ArrayList<>();
+            todos.addAll(alvosEsquerda);
+            todos.addAll(alvosDireita);
+            return todos;
         } 
     }
+    
+    public List<Alvo> getAlvosLado(boolean isLadoEsquerdo) {
+        synchronized(lockListas) {
+            return isLadoEsquerdo ? new ArrayList<>(alvosEsquerda) : new ArrayList<>(alvosDireita);
+        }
+    }
+
     public List<Canhao> getCanhoes() {
-        synchronized (lockListas) {
-            return new ArrayList<>(canhoes);
-        } 
+        synchronized (lockListas) { return new ArrayList<>(canhoes); } 
     }
     public List<Projetil> getProjeteis() { 
-        synchronized (lockListas) {
-            return new ArrayList<>(projeteis);
-        } 
+        synchronized (lockListas) { return new ArrayList<>(projeteis); } 
     }
 
-    // Método para a tela conseguir ler quem está ganhando
-    public int getPontosEsquerda(){
-        return pontosEsquerda;
-    }
-    public int getPontosDireita(){
-        return pontosDireita;
-    }
+    public int getPontosEsquerda(){ return pontosEsquerda; }
+    public int getPontosDireita(){ return pontosDireita; }
+    public boolean isRodando(){ return rodando; }
+    public int getEnergiaEsquerda(){ return energiaEsquerda; }
+    public int getEnergiaDireita(){ return energiaDireita; }
 
-    public boolean isRodando(){
-        return rodando;
-    }
-
-    public int getEnergiaEsquerda(){
-        return energiaEsquerda;
-    }
-
-    public int getEnergiaDireita(){
-        return energiaDireita;
-    }
-
-    // Procura na lista do último canhão daquele lado, manda desligar a sua thread e remove!
     public void removerCanhao (boolean esquerda) {
         synchronized (lockListas) {
             for (int i = canhoes.size() - 1; i >= 0; i--) {
                 Canhao c = canhoes.get(i);
                 if (c.isLadoEsquerdo() == esquerda) {
-                    c.desligar(); // Mata a linha de execução daquele canhão
+                    c.desligar(); 
                     canhoes.remove(i);
                     break;
                 }
