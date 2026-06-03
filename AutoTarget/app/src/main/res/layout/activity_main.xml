@@ -3,209 +3,279 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#121212"
-    android:weightSum="10">
+    android:background="#121212">
 
-    <!-- 1. CABEÇALHO (Placar Sistema A vs Sistema B) (Ocupa peso 2 da tela) -->
+    <!-- Navegação Superior -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp">
-
-        <!-- Lado Esquerdo (Sistema A) -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Sistema A"
-                android:textAlignment="center"
-                android:textColor="#FFFFFF"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textEnergiaA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Energia: 100"
-                android:textSize="16sp"
-                android:textColor="#2196F3"
-                android:layout_marginTop="4dp" />
-
-            <ProgressBar
-                android:id="@+id/progressEnergiaA"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:max="150"
-                android:progress="150"
-                android:progressTint="#2196F3" />
-            
-            <TextView
-                android:id="@+id/textAbatesA"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Abates: 0"
-                android:textAlignment="center"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp" />
-        </LinearLayout>
-
-        <!-- Divisória (linha vertical no meio da tela) -->
-        <View
-            android:layout_width="4dp"
-            android:layout_height="wrap_content"
-            android:background="#E8E8E8"
-            android:layout_marginHorizontal="8dp" />
-
-        <!-- Lado Direito (Sistema B) -->
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="end">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Sistema B"
-                android:textSize="20sp"
-                android:textColor="#FFFFFF"
-                android:textAlignment="center"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textEnergiaB"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Energia: 100"
-                android:textSize="16sp"
-                android:textColor="#4CAF50"
-                android:layout_marginTop="4dp" />
-
-                <ProgressBar
-                android:id="@+id/progressEnergiaB"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:max="150"
-                android:progress="150"
-                android:progressTint="#2196F3" />
-
-            <TextView
-                android:id="@+id/textAbatesB"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Abates: 0"
-                android:textColor="#FFFFFF"
-                android:textAlignment="center"
-                android:textSize="18sp" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- 2. ÁREA DO JOGO (Canvas) (Ocupa peso 6 na tela) -->
-    <!-- Este FrameLayout seráo "pote" onde colocaremos nosso GameView pelo Java -->
-    <FrameLayout
-        android:id="@+id/gameContainer"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="6"
-        android:background="#333333"
-        android:layout_margin="8dp">
-
-        <!-- Letreiro de vitória flutuando no meio da tela -->
-        <TextView
-            android:id="@+id/textVencedor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="SISTEMA X VENCEU!"
-            android:textColor="#FFEB3B"
-            android:textSize="36sp"
-            android:textStyle="bold|italic"
-            android:shadowColor="#000000"
-            android:shadowDx="5"
-            android:shadowDy="5"
-            android:shadowRadius="5"
-            android:visibility="gone" />
-    </FrameLayout>
-
-    <!-- 3. RODAPÉ (Botões de Ação) (Ocupa peso 2 da tela) -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
-        android:orientation="vertical"
+        android:background="#1F1B24"
         android:padding="8dp">
 
-        <!-- Botões de Adicionar Canhão esquerdo e direito -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/btnNavJogo"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="8dp">
+            android:layout_weight="1"
+            android:text="Jogo"
+            android:backgroundTint="#BB86FC"
+            android:textColor="#000000"
+            android:layout_marginEnd="4dp"/>
 
-            <!-- Dupla do Lado A -->
-            <Button
-                android:id="@+id/btnAddCanhaoA"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:backgroundTint="#FFFFFF"
-                android:text="+A"
-                android:textColor="#000000" />
+        <Button
+            android:id="@+id/btnNavAnalise"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Análise RM"
+            android:backgroundTint="#333333"
+            android:textColor="#FFFFFF"
+            android:layout_marginStart="4dp"/>
+    </LinearLayout>
 
-            <Button
-                android:id="@+id/btnRemCanhaoA"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:backgroundTint="#FFFFFF"
-                android:text="-A"
-                android:layout_marginEnd="8dp"
-                android:textColor="#000000" />
+    <!-- Conteúdo Dinâmico -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-            <!-- Dupla do Lado B -->
-            <Button
-                android:id="@+id/btnAddCanhaoB"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:backgroundTint="#FFFFFF"
-                android:text="+B"
-                android:textColor="#000000" />
+        <!-- ABA JOGO (Layout original) -->
+        <LinearLayout
+            android:id="@+id/layoutJogo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:weightSum="10">
 
-            <Button
-                android:id="@+id/btnRemCanhaoB"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:backgroundTint="#FFFFFF"
-                android:text="-B"
-                android:textColor="#000000" />
+            <!-- 1. CABEÇALHO (Placar Sistema A vs Sistema B) (Ocupa peso 2 da tela) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="2"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <!-- Lado Esquerdo (Sistema A) -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Sistema A"
+                        android:textAlignment="center"
+                        android:textColor="#FFFFFF"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/textEnergiaA"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Energia: 100"
+                        android:textSize="16sp"
+                        android:textColor="#2196F3"
+                        android:layout_marginTop="4dp" />
+
+                    <ProgressBar
+                        android:id="@+id/progressEnergiaA"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:max="150"
+                        android:progress="150"
+                        android:progressTint="#2196F3" />
+                    
+                    <TextView
+                        android:id="@+id/textAbatesA"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Abates: 0"
+                        android:textAlignment="center"
+                        android:textColor="#FFFFFF"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <!-- Divisória com Timer no meio -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginHorizontal="8dp">
+
+                    <TextView
+                        android:id="@+id/textTimer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="60s"
+                        android:textColor="#FFFFFF"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+                    
+                    <View
+                        android:layout_width="4dp"
+                        android:layout_height="match_parent"
+                        android:background="#E8E8E8"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <!-- Lado Direito (Sistema B) -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="end">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Sistema B"
+                        android:textSize="20sp"
+                        android:textColor="#FFFFFF"
+                        android:textAlignment="center"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/textEnergiaB"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Energia: 100"
+                        android:textSize="16sp"
+                        android:textColor="#4CAF50"
+                        android:layout_marginTop="4dp" />
+
+                        <ProgressBar
+                        android:id="@+id/progressEnergiaB"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:max="150"
+                        android:progress="150"
+                        android:progressTint="#2196F3" />
+
+                    <TextView
+                        android:id="@+id/textAbatesB"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Abates: 0"
+                        android:textColor="#FFFFFF"
+                        android:textAlignment="center"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 2. ÁREA DO JOGO (Canvas) (Ocupa peso 6 na tela) -->
+            <!-- Este FrameLayout seráo "pote" onde colocaremos nosso GameView pelo Java -->
+            <FrameLayout
+                android:id="@+id/gameContainer"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="6"
+                android:background="#333333"
+                android:layout_margin="8dp">
+
+                <!-- Letreiro de vitória flutuando no meio da tela -->
+                <TextView
+                    android:id="@+id/textVencedor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="SISTEMA X VENCEU!"
+                    android:textColor="#FFEB3B"
+                    android:textSize="36sp"
+                    android:textStyle="bold|italic"
+                    android:shadowColor="#000000"
+                    android:shadowDx="5"
+                    android:shadowDy="5"
+                    android:shadowRadius="5"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- 3. RODAPÉ (Botões de Ação) (Ocupa peso 2 da tela) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="2"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <!-- Botões de Adicionar Canhão esquerdo e direito -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <!-- Dupla do Lado A -->
+                    <Button
+                        android:id="@+id/btnAddCanhaoA"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="#FFFFFF"
+                        android:text="+A"
+                        android:textColor="#000000" />
+
+                    <Button
+                        android:id="@+id/btnRemCanhaoA"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="#FFFFFF"
+                        android:text="-A"
+                        android:layout_marginEnd="8dp"
+                        android:textColor="#000000" />
+
+                    <!-- Dupla do Lado B -->
+                    <Button
+                        android:id="@+id/btnAddCanhaoB"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="#FFFFFF"
+                        android:text="+B"
+                        android:textColor="#000000" />
+
+                    <Button
+                        android:id="@+id/btnRemCanhaoB"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="#FFFFFF"
+                        android:text="-B"
+                        android:textColor="#000000" />
+                </LinearLayout>
+
+                <!-- Botão Iniciar Partida -->
+                <Button
+                    android:id="@+id/btnIniciar"
+                    android:layout_width="match_parent"
+                    android:layout_height="67dp"
+                    android:backgroundTint="#2F9E58"
+                    android:text="Iniciar Partida (60s)"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- Botão Iniciar Partida -->
-        <Button
-            android:id="@+id/btnIniciar"
+        <!-- ABA ANÁLISE RM -->
+        <LinearLayout
+            android:id="@+id/layoutAnalise"
             android:layout_width="match_parent"
-            android:layout_height="67dp"
-            android:backgroundTint="#2F9E58"
-            android:text="Iniciar Partida (60s)"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+            android:layout_height="match_parent"
+            android:visibility="gone">
+            <include layout="@layout/layout_analise" />
+        </LinearLayout>
+
+    </FrameLayout>
 </LinearLayout>

@@ -2,16 +2,24 @@ package com.example.autotarget;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.List;
 
 import classes.AlvoComum;
 import classes.AlvoRapido;
 import classes.GameView;
 import classes.Jogo;
+import classes.RealTimeAnalyzer;
+import classes.RealTimeTask;
 
 public class MainActivity extends Activity {
     private GameView gameView;
@@ -33,6 +41,18 @@ public class MainActivity extends Activity {
     private ProgressBar progressEnergiaA;
     private ProgressBar progressEnergiaB;
 
+    // Componentes de Navegação e Análise
+    private Button btnNavJogo;
+    private Button btnNavAnalise;
+    private LinearLayout layoutJogo;
+    private LinearLayout layoutAnalise;
+    
+    private TableLayout tableTasks;
+    private TextView textLiuLayland;
+    private TextView textRiStatus;
+    private TextView textAmdahl;
+    private TextView textTimer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +60,7 @@ public class MainActivity extends Activity {
         // Usa o XML desenhado na activity_main.xml
         setContentView(R.layout.activity_main);
 
-        // Mapear os elementos do XML para o Java usando IDs
+        // Mapear elementos do Jogo
         FrameLayout container = findViewById(R.id.gameContainer);
         textAbatesA = findViewById(R.id.textAbatesA);
         textAbatesB = findViewById(R.id.textAbatesB);
@@ -54,7 +74,20 @@ public class MainActivity extends Activity {
         progressEnergiaA = findViewById(R.id.progressEnergiaA);
         progressEnergiaB = findViewById(R.id.progressEnergiaB);
         textVencedor = findViewById(R.id.textVencedor);
+        textTimer = findViewById(R.id.textTimer);
         
+        // Mapear elementos de Navegação
+        btnNavJogo = findViewById(R.id.btnNavJogo);
+        btnNavAnalise = findViewById(R.id.btnNavAnalise);
+        layoutJogo = findViewById(R.id.layoutJogo);
+        layoutAnalise = findViewById(R.id.layoutAnalise);
+
+        // Mapear elementos de Análise
+        tableTasks = findViewById(R.id.tableTasks);
+        textLiuLayland = findViewById(R.id.textLiuLayland);
+        textRiStatus = findViewById(R.id.textRiStatus);
+        textAmdahl = findViewById(R.id.textAmdahl);
+
         // Inicializar a lógica do jogo e vizual
         jogo = new Jogo();
         gameView = new GameView(this, jogo);
@@ -64,6 +97,8 @@ public class MainActivity extends Activity {
 
         // Configurar os cliques dos botões
         ConfigurarBotoes();
+        ConfigurarNavegacao();
+        AtualizarAnaliseTempoReal();
 
         // Atualizador manual de Placar
         new Thread(() -> {
@@ -78,10 +113,22 @@ public class MainActivity extends Activity {
                         progressEnergiaA.setProgress(jogo.getEnergiaEsquerda());
                         progressEnergiaB.setProgress(jogo.getEnergiaDireita());
 
+                        if (jogo.isRodando()) {
+                            long tempoRestante = jogo.getTempoRestanteSegundos();
+                            textTimer.setText(tempoRestante + "s");
+
+                            // Atualizar dados de análise dinamicamente caso a aba esteja aberta
+                            if (layoutAnalise.getVisibility() == View.VISIBLE) {
+                                AtualizarAnaliseTempoReal();
+                            }
+                        } else {
+                            textTimer.setText("60s");
+                        }
+
                         if (!jogo.isRodando() && partidaJogada) {
                             btnIniciar.setText("Jogar Novamente (60s)");
                             btnIniciar.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#FF9800")));
-                            textVencedor.setVisibility(android.view.View.VISIBLE);
+                            textVencedor.setVisibility(View.VISIBLE);
                             if (jogo.getPontosEsquerda() > jogo.getPontosDireita()) {
                                 textVencedor.setText("SISTEMA A VENCEU!");
                             } else if (jogo.getPontosDireita() > jogo.getPontosEsquerda()) {
@@ -91,7 +138,7 @@ public class MainActivity extends Activity {
                             }
                         } else if (!partidaJogada) {
                             // Garante que o texto de vencedor esteja escondido antes de jogar
-                            textVencedor.setVisibility(android.view.View.GONE);
+                            textVencedor.setVisibility(View.GONE);
                             btnIniciar.setText("Iniciar Batalha");
                         }
                     }
@@ -105,13 +152,89 @@ public class MainActivity extends Activity {
         }).start();
     }
 
+    private void ConfigurarNavegacao() {
+        btnNavJogo.setOnClickListener(v -> {
+            layoutJogo.setVisibility(View.VISIBLE);
+            layoutAnalise.setVisibility(View.GONE);
+            btnNavJogo.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#BB86FC")));
+            btnNavAnalise.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#333333")));
+        });
+
+        btnNavAnalise.setOnClickListener(v -> {
+            layoutJogo.setVisibility(View.GONE);
+            layoutAnalise.setVisibility(View.VISIBLE);
+            btnNavAnalise.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#BB86FC")));
+            btnNavJogo.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#333333")));
+            AtualizarAnaliseTempoReal(); // Atualiza a aba ao abrir
+        });
+    }
+
+    private void AtualizarAnaliseTempoReal() {
+        List<RealTimeTask> tasks = RealTimeAnalyzer.getMockTasks(jogo);
+        RealTimeAnalyzer.calcularRiExato(tasks);
+
+        // Limpar tabela (mantendo o cabeçalho index 0)
+        int childCount = tableTasks.getChildCount();
+        if (childCount > 1) {
+            tableTasks.removeViews(1, childCount - 1);
+        }
+
+        boolean riStatusOk = true;
+
+        for (RealTimeTask t : tasks) {
+            TableRow row = new TableRow(this);
+            row.setPadding(8, 8, 8, 8);
+
+            String[] dados = {
+                t.nome, 
+                String.valueOf(t.p), 
+                String.valueOf(t.c), 
+                String.valueOf(t.d), 
+                String.valueOf(t.j), 
+                String.valueOf(t.r)
+            };
+
+            for (String val : dados) {
+                TextView tv = new TextView(this);
+                tv.setText(val);
+                tv.setTextColor(android.graphics.Color.WHITE);
+                tv.setPadding(8, 8, 8, 8);
+                row.addView(tv);
+            }
+
+            tableTasks.addView(row);
+
+            if (t.r > t.d) {
+                riStatusOk = false;
+            }
+        }
+
+        double u = RealTimeAnalyzer.calcularUtilizacao(tasks);
+        double ull = RealTimeAnalyzer.calcularLiuLayland(tasks.size());
+        boolean rmStatus = u <= ull;
+
+        textLiuLayland.setText(String.format("Utilização (U) = %.4f\nLimite Liu-Layland = %.4f\nStatus RM: %s", u, ull, rmStatus ? "OK" : "FALHOU"));
+        textRiStatus.setText("Status Exato (Ri <= Di): " + (riStatusOk ? "OK (Escalonável)" : "FALHOU (Não escalonável)"));
+
+        // Simulação Amdahl com afinidade baseada no Jogo
+        int coresSimulados = 2; // OtimizadorMock aplica máscara para 2 cores
+        double fracaoParalel = 0.8; // 80%
+        double speedup = RealTimeAnalyzer.calcularAmdahlSpeedup(fracaoParalel, coresSimulados);
+        textAmdahl.setText(String.format("Núcleos (Threads/Afinidade): %d\nFração Paralelizável: %d%%\nSpeedup Teórico: %.2fx", coresSimulados, (int)(fracaoParalel*100), speedup));
+
+        classes.RealTimeGraphView graphView = findViewById(R.id.graphView);
+        if (graphView != null) {
+            graphView.setTasks(tasks);
+        }
+    }
+
     private void ConfigurarBotoes(){
         // Dinâmica do botão Iniciar e Reiniciar
         btnIniciar.setOnClickListener(v -> {
             if (jogo == null || !jogo.isRodando()) {
                 partidaJogada = true;
                 // Esconde o letreiro de vencedor
-                textVencedor.setVisibility(android.view.View.GONE);
+                textVencedor.setVisibility(View.GONE);
 
                 // Destruimos o jogo velho e criamos um novo
                 jogo = new Jogo();

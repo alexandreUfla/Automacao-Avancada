@@ -22,6 +22,7 @@ public class Jogo extends Thread{
     private volatile int energiaEsquerda = 100; // AV2: Energia inicial 100
     private volatile int energiaDireita = 100;
     private volatile boolean rodando = false;
+    private volatile long startTime = 0;
 
     @Override
     public void run(){
@@ -29,7 +30,7 @@ public class Jogo extends Thread{
         otimizador = new OtimizadorManager(this);
         otimizador.start();
         
-        long startTime = System.currentTimeMillis();
+        startTime = System.currentTimeMillis();
         long ultimoSpawn = startTime;
         long ultimoSpawnEnergia = startTime;
 
@@ -261,6 +262,14 @@ public class Jogo extends Thread{
     public boolean isRodando(){ return rodando; }
     public int getEnergiaEsquerda(){ return energiaEsquerda; }
     public int getEnergiaDireita(){ return energiaDireita; }
+    
+    public long getTempoRestanteSegundos() {
+        if (!rodando || startTime == 0) return 0;
+        long decorrido = System.currentTimeMillis() - startTime;
+        long restante = 60000 - decorrido;
+        if (restante < 0) return 0;
+        return restante / 1000;
+    }
 
     public void removerCanhao (boolean esquerda) {
         synchronized (lockListas) {

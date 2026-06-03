@@ -54,7 +54,27 @@ public class OtimizadorManager extends Thread {
             if (c.isLadoEsquerdo() == isEsquerda) canhoes.add(c);
         }
 
-        if (alvos.isEmpty() || canhoes.isEmpty()) return;
+        // Correção: Se não houver canhões, a lógica não chega no final para adicionar.
+        // Precisamos forçar a criação do primeiro canhão se houver ameaças.
+        if (canhoes.isEmpty()) {
+            int ameacas = 0;
+            for (Alvo a : alvos) {
+                if ((a.getX() < jogo.getLarguraTela() / 2.0) == isEsquerda) ameacas++;
+            }
+            if (ameacas > 0) {
+                int energia = isEsquerda ? jogo.getEnergiaEsquerda() : jogo.getEnergiaDireita();
+                if (energia > 50) { // Custo base ou margem
+                    try {
+                        double novoX = isEsquerda ? (jogo.getLarguraTela() * 0.2) : (jogo.getLarguraTela() * 0.8);
+                        double novoY = jogo.getAlturaTela() - 50;
+                        jogo.adicionarCanhao(novoX, novoY);
+                    } catch (JogoException e) {}
+                }
+            }
+            return; // Sai pois não há como rodar os cálculos de matrizes sem canhões
+        }
+
+        if (alvos.isEmpty()) return;
 
         int numAlvos = alvos.size();
         int numCanhoes = canhoes.size();

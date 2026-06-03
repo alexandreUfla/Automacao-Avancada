@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121212"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tabela de Tarefas (Tempo Real)"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="#1E1E1E">
+
+            <TableLayout
+                android:id="@+id/tableTasks"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:stretchColumns="*">
+
+                <!-- Header -->
+                <TableRow
+                    android:background="#333333"
+                    android:padding="8dp">
+                    <TextView android:text="Tarefa" android:textColor="#FFFFFF" android:textStyle="bold" android:padding="8dp"/>
+                    <TextView android:text="Pi" android:textColor="#FFFFFF" android:textStyle="bold" android:padding="8dp"/>
+                    <TextView android:text="Ci" android:textColor="#FFFFFF" android:textStyle="bold" android:padding="8dp"/>
+                    <TextView android:text="Di" android:textColor="#FFFFFF" android:textStyle="bold" android:padding="8dp"/>
+                    <TextView android:text="Ji" android:textColor="#FFFFFF" android:textStyle="bold" android:padding="8dp"/>
+                    <TextView android:text="Ri" android:textColor="#FFFFFF" android:textStyle="bold" android:padding="8dp"/>
+                </TableRow>
+            </TableLayout>
+        </HorizontalScrollView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Análise de Escalonabilidade"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/textLiuLayland"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Utilização (U) = \nLimite Liu-Layland = \nStatus RM: "
+            android:textColor="#BB86FC"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/textRiStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Status Exato (Ri &lt;= Di): "
+            android:textColor="#03DAC5"
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Afinidade e Lei de Amdahl"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/textAmdahl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Núcleos Simulados: 2\nFração Paralelizável: 80%\nSpeedup: "
+            android:textColor="#CF6679"
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp" />
+
+        <classes.RealTimeGraphView
+            android:id="@+id/graphView"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="8dp" />
+
+    </LinearLayout>
+</ScrollView>
