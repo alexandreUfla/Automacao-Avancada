@@ -186,17 +186,24 @@
                 <!-- Letreiro de vitória flutuando no meio da tela -->
                 <TextView
                     android:id="@+id/textVencedor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="SISTEMA A VENCEU"
+                    android:textColor="#FFEB3B"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/btnRanking"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="Ver Ranking"
+                    android:backgroundTint="#6200EE"
+                    android:textColor="#FFFFFF"
                     android:layout_gravity="center"
-                    android:text="SISTEMA X VENCEU!"
-                    android:textColor="#FFEB3B"
-                    android:textSize="36sp"
-                    android:textStyle="bold|italic"
-                    android:shadowColor="#000000"
-                    android:shadowDx="5"
-                    android:shadowDy="5"
-                    android:shadowRadius="5"
                     android:visibility="gone" />
             </FrameLayout>
 

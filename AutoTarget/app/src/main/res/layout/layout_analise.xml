@@ -81,19 +81,51 @@
             android:textStyle="bold"
             android:layout_marginBottom="8dp" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Núcleos:"
+                android:textColor="#FFFFFF"/>
+            
+            <Spinner
+                android:id="@+id/spinnerNucleos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:backgroundTint="#03DAC5"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Alvos:"
+                android:textColor="#FFFFFF"/>
+            
+            <Spinner
+                android:id="@+id/spinnerAlvos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#03DAC5"/>
+        </LinearLayout>
+
         <TextView
             android:id="@+id/textAmdahl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Núcleos Simulados: 2\nFração Paralelizável: 80%\nSpeedup: "
-            android:textColor="#CF6679"
-            android:textSize="16sp"
-            android:layout_marginBottom="16dp" />
+            android:text="Amdahl Analysis"
+            android:textColor="#03DAC5"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
 
         <classes.RealTimeGraphView
             android:id="@+id/graphView"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="200dp"
             android:layout_marginTop="8dp" />
 
     </LinearLayout>

@@ -13,14 +13,25 @@
         android:theme="@style/Theme.AutoTarget"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.AutoTarget">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AutoTarget">
+        </activity>
+        
+        <activity
+            android:name=".RankingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AutoTarget">
         </activity>
     </application>
 

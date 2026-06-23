@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "533240995824",
+    "project_id": "autotarget-aa",
+    "storage_bucket": "autotarget-aa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:533240995824:android:8d0bfddb01a75ed7c18735",
+        "android_client_info": {
+          "package_name": "com.example.autotarget"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTK_LxA6YdGVah917POuE5-UB7WBqSWOo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

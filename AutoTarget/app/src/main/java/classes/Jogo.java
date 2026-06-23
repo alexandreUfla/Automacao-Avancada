@@ -13,9 +13,29 @@ public class Jogo extends Thread{
     private final Object lockColisao = new Object();
 
     private OtimizadorManager otimizador;
+    private CyberSensorManager sensorManager;
+
+    public Jogo() {
+        this(null);
+    }
+
+    public Jogo(CyberSensorManager sensorManager) {
+        this.sensorManager = sensorManager;
+    }
+
+    public double getFatorResfriamento() {
+        if (sensorManager != null) {
+            if (sensorManager.getCurrentTemp() > 40.0) {
+                return 2.0; // Demora o dobro para atirar
+            }
+        }
+        return 1.0;
+    }
 
     private double larguraTela = 1080; // Mock de tamanho de tela
     private double alturaTela = 1920;
+
+    private java.util.concurrent.ExecutorService threadPool = java.util.concurrent.Executors.newCachedThreadPool();
 
     private volatile int pontosEsquerda = 0;
     private volatile int pontosDireita = 0;
@@ -51,7 +71,7 @@ public class Jogo extends Thread{
                 }
 
                 adicionarAlvo(novoAlvo);
-                novoAlvo.start(); // Inicia a thread do alvo
+                threadPool.execute(novoAlvo); // Inicia a thread do alvo no pool
 
                 ultimoSpawn = agora;
             }
@@ -78,10 +98,10 @@ public class Jogo extends Thread{
 
         // Encerrar todas as Threads filhas adequadamente (Fix AV1)
         synchronized(lockListas) {
-            for (Alvo a : alvosEsquerda) { a.destruir(); a.interrupt(); }
-            for (Alvo a : alvosDireita) { a.destruir(); a.interrupt(); }
-            for (Canhao c : canhoes) { c.desligar(); c.interrupt(); }
-            for (Projetil p : projeteis) { p.destruir(); p.interrupt(); }
+            for (Alvo a : alvosEsquerda) { a.destruir(); }
+            for (Alvo a : alvosDireita) { a.destruir(); }
+            for (Canhao c : canhoes) { c.desligar(); }
+            for (Projetil p : projeteis) { p.destruir(); }
         }
     }
 
@@ -118,10 +138,7 @@ public class Jogo extends Thread{
             }
             c = new Canhao(x, y, this);
             canhoes.add(c);
-        }
-        // Iniciar fora do lock (Fix AV1)
-        if (c != null) {
-            c.start();
+            threadPool.execute(c);
         }
     }
 
@@ -129,6 +146,7 @@ public class Jogo extends Thread{
         synchronized (lockListas){
             projeteis.add(p);
         }
+        threadPool.execute(p);
     }
 
     public void removerProjetil(Projetil p){

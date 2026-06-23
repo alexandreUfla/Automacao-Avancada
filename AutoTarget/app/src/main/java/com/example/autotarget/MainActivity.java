@@ -52,6 +52,8 @@ public class MainActivity extends Activity {
     private TextView textRiStatus;
     private TextView textAmdahl;
     private TextView textTimer;
+    
+    private classes.CyberSensorManager sensorManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,8 +90,25 @@ public class MainActivity extends Activity {
         textRiStatus = findViewById(R.id.textRiStatus);
         textAmdahl = findViewById(R.id.textAmdahl);
 
+        // Cyber-Physical System: Sensor de Temperatura
+        sensorManager = new classes.CyberSensorManager(this);
+        sensorManager.start();
+
+        // Thread Ciberfísica de Telemetria (A cada 10s pro Firebase)
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(10000);
+                    if (com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) {
+                        String uid = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser().getUid();
+                        classes.DatabaseService.salvarTelemetria(uid, sensorManager.getCurrentTemp());
+                    }
+                } catch (InterruptedException e) { break; }
+            }
+        }).start();
+
         // Inicializar a lógica do jogo e vizual
-        jogo = new Jogo();
+        jogo = new Jogo(sensorManager);
         gameView = new GameView(this, jogo);
 
         // Colocar o desenho do jogo dentro do FrameLayout do XML
@@ -98,12 +117,19 @@ public class MainActivity extends Activity {
         // Configurar os cliques dos botões
         ConfigurarBotoes();
         ConfigurarNavegacao();
+        ConfigurarSpinners();
         AtualizarAnaliseTempoReal();
+
+        // Configurar Ranking
+        Button btnRanking = findViewById(R.id.btnRanking);
+        btnRanking.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(this, RankingActivity.class);
+            startActivity(intent);
+        });
 
         // Atualizador manual de Placar
         new Thread(() -> {
             while (atualizandoPlacar) {
-                // runOnUiThread força a mudança visual a acontecer na Thread principal
                 runOnUiThread(() -> {
                     if (jogo != null) {
                         textAbatesA.setText("Abates: " + jogo.getPontosEsquerda());
@@ -117,7 +143,6 @@ public class MainActivity extends Activity {
                             long tempoRestante = jogo.getTempoRestanteSegundos();
                             textTimer.setText(tempoRestante + "s");
 
-                            // Atualizar dados de análise dinamicamente caso a aba esteja aberta
                             if (layoutAnalise.getVisibility() == View.VISIBLE) {
                                 AtualizarAnaliseTempoReal();
                             }
@@ -129,22 +154,47 @@ public class MainActivity extends Activity {
                             btnIniciar.setText("Jogar Novamente (60s)");
                             btnIniciar.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#FF9800")));
                             textVencedor.setVisibility(View.VISIBLE);
-                            if (jogo.getPontosEsquerda() > jogo.getPontosDireita()) {
+                            btnRanking.setVisibility(View.VISIBLE);
+                            
+                            int ptsEsquerda = jogo.getPontosEsquerda();
+                            int ptsDireita = jogo.getPontosDireita();
+                            
+                            if (ptsEsquerda > ptsDireita) {
                                 textVencedor.setText("SISTEMA A VENCEU!");
-                            } else if (jogo.getPontosDireita() > jogo.getPontosEsquerda()) {
+                            } else if (ptsDireita > ptsEsquerda) {
                                 textVencedor.setText("SISTEMA B VENCEU!");
                             } else {
                                 textVencedor.setText("EMPATE!");
                             }
+
+                            // Salva a partida no firebase
+                            if (!this.partidaSalva) {
+                                this.partidaSalva = true;
+                                if (com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser() != null) {
+                                    String uid = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser().getUid();
+                                    int myScore = Math.max(ptsEsquerda, ptsDireita);
+                                    int totalAbates = ptsEsquerda + ptsDireita;
+                                    String cfg = "2 Nucleos Simulados";
+                                    classes.DatabaseService.salvarPartida(uid, System.currentTimeMillis(), myScore, totalAbates, cfg, new classes.DatabaseService.DatabaseCallback() {
+                                        @Override
+                                        public void onSuccess() {
+                                            android.widget.Toast.makeText(MainActivity.this, "Partida salva no nuvem!", android.widget.Toast.LENGTH_SHORT).show();
+                                        }
+                                        @Override
+                                        public void onError(Exception e) {}
+                                    });
+                                }
+                            }
+
                         } else if (!partidaJogada) {
-                            // Garante que o texto de vencedor esteja escondido antes de jogar
                             textVencedor.setVisibility(View.GONE);
+                            btnRanking.setVisibility(View.GONE);
                             btnIniciar.setText("Iniciar Batalha");
                         }
                     }
                 });
                 try {
-                    Thread.sleep(100); // Atualiza o placar a cada 100ms
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -169,6 +219,43 @@ public class MainActivity extends Activity {
         });
     }
 
+    private void ConfigurarSpinners() {
+        android.widget.Spinner spinnerNucleos = findViewById(R.id.spinnerNucleos);
+        android.widget.Spinner spinnerAlvos = findViewById(R.id.spinnerAlvos);
+        
+        if (spinnerNucleos != null) {
+            String[] nucleosOpts = {"1", "2", "4"};
+            android.widget.ArrayAdapter<String> adapterN = new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_item, nucleosOpts);
+            adapterN.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerNucleos.setAdapter(adapterN);
+            spinnerNucleos.setSelection(1); // Default to 2 cores
+            
+            spinnerNucleos.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                    if (layoutAnalise.getVisibility() == View.VISIBLE) AtualizarAnaliseTempoReal();
+                }
+                @Override public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+            });
+        }
+        
+        if (spinnerAlvos != null) {
+            String[] alvosOpts = {"10", "20", "50", "100"};
+            android.widget.ArrayAdapter<String> adapterA = new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_item, alvosOpts);
+            adapterA.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerAlvos.setAdapter(adapterA);
+            spinnerAlvos.setSelection(0); // Default to 10 targets
+            
+            spinnerAlvos.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                    if (layoutAnalise.getVisibility() == View.VISIBLE) AtualizarAnaliseTempoReal();
+                }
+                @Override public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+            });
+        }
+    }
+
     private void AtualizarAnaliseTempoReal() {
         List<RealTimeTask> tasks = RealTimeAnalyzer.getMockTasks(jogo);
         RealTimeAnalyzer.calcularRiExato(tasks);
@@ -179,48 +266,63 @@ public class MainActivity extends Activity {
             tableTasks.removeViews(1, childCount - 1);
         }
 
-        boolean riStatusOk = true;
+        boolean limitPass = true;
 
         for (RealTimeTask t : tasks) {
             TableRow row = new TableRow(this);
             row.setPadding(8, 8, 8, 8);
 
+            if (t.r > t.d) limitPass = false;
+
             String[] dados = {
                 t.nome, 
-                String.valueOf(t.p), 
-                String.valueOf(t.c), 
-                String.valueOf(t.d), 
-                String.valueOf(t.j), 
-                String.valueOf(t.r)
+                t.p+"ms", 
+                t.c+"ms", 
+                t.d+"ms", 
+                t.j+"ms", 
+                t.r+"ms"
             };
 
-            for (String val : dados) {
+            for (String d : dados){
                 TextView tv = new TextView(this);
-                tv.setText(val);
-                tv.setTextColor(android.graphics.Color.WHITE);
-                tv.setPadding(8, 8, 8, 8);
+                tv.setText(d);
+                tv.setTextColor(android.graphics.Color.LTGRAY);
+                tv.setPadding(8,8,8,8);
                 row.addView(tv);
             }
-
             tableTasks.addView(row);
-
-            if (t.r > t.d) {
-                riStatusOk = false;
-            }
         }
 
         double u = RealTimeAnalyzer.calcularUtilizacao(tasks);
         double ull = RealTimeAnalyzer.calcularLiuLayland(tasks.size());
         boolean rmStatus = u <= ull;
 
-        textLiuLayland.setText(String.format("Utilização (U) = %.4f\nLimite Liu-Layland = %.4f\nStatus RM: %s", u, ull, rmStatus ? "OK" : "FALHOU"));
-        textRiStatus.setText("Status Exato (Ri <= Di): " + (riStatusOk ? "OK (Escalonável)" : "FALHOU (Não escalonável)"));
+        textLiuLayland.setText(String.format("Utilização (U) = %.4f\nLimite (U_LL) = %.4f\nStatus RM: %s", 
+                u, ull, (rmStatus ? "ESCALONÁVEL" : "NÃO ESCALONÁVEL")));
 
-        // Simulação Amdahl com afinidade baseada no Jogo
-        int coresSimulados = 2; // OtimizadorMock aplica máscara para 2 cores
-        double fracaoParalel = 0.8; // 80%
-        double speedup = RealTimeAnalyzer.calcularAmdahlSpeedup(fracaoParalel, coresSimulados);
-        textAmdahl.setText(String.format("Núcleos (Threads/Afinidade): %d\nFração Paralelizável: %d%%\nSpeedup Teórico: %.2fx", coresSimulados, (int)(fracaoParalel*100), speedup));
+        textLiuLayland.setTextColor(rmStatus ? android.graphics.Color.GREEN : android.graphics.Color.RED);
+
+        textRiStatus.setText(limitPass ? "Status R_i: DENTRO DO DEADLINE" : "Status R_i: DEADLINE PERDIDO");
+        textRiStatus.setTextColor(limitPass ? android.graphics.Color.GREEN : android.graphics.Color.RED);
+
+        // Atualizar Amdahl com os valores do Spinner
+        int nucleos = 1;
+        int qtdAlvos = 10;
+        
+        android.widget.Spinner spinnerNucleos = findViewById(R.id.spinnerNucleos);
+        android.widget.Spinner spinnerAlvos = findViewById(R.id.spinnerAlvos);
+        
+        if (spinnerNucleos != null && spinnerNucleos.getSelectedItem() != null) {
+            nucleos = Integer.parseInt(spinnerNucleos.getSelectedItem().toString());
+        }
+        if (spinnerAlvos != null && spinnerAlvos.getSelectedItem() != null) {
+            qtdAlvos = Integer.parseInt(spinnerAlvos.getSelectedItem().toString());
+        }
+
+        double speedup = classes.RealTimeAnalyzer.calcularAmdahl(nucleos, qtdAlvos);
+        double pEmpirico = classes.RealTimeAnalyzer.getPEmpirico(qtdAlvos);
+
+        textAmdahl.setText(String.format(java.util.Locale.getDefault(), "Núcleos: %d | Alvos: %d\nFração Paralelizável (P): %.1f%%\nSpeedup (S): %.2fx", nucleos, qtdAlvos, pEmpirico * 100, speedup));
 
         classes.RealTimeGraphView graphView = findViewById(R.id.graphView);
         if (graphView != null) {
@@ -228,16 +330,22 @@ public class MainActivity extends Activity {
         }
     }
 
+    // Variáveis de controle de estado do placar
+    private boolean partidaSalva = false;
+
     private void ConfigurarBotoes(){
         // Dinâmica do botão Iniciar e Reiniciar
         btnIniciar.setOnClickListener(v -> {
             if (jogo == null || !jogo.isRodando()) {
                 partidaJogada = true;
-                // Esconde o letreiro de vencedor
+                partidaSalva = false; // Reseta estado
+
+                // Esconde o letreiro de vencedor e botão de ranking
                 textVencedor.setVisibility(View.GONE);
+                findViewById(R.id.btnRanking).setVisibility(View.GONE);
 
                 // Destruimos o jogo velho e criamos um novo
-                jogo = new Jogo();
+                jogo = new Jogo(sensorManager);
                 gameView.setJogo(jogo);
 
                 // Como a partida começou, o botão "vira" um botão de abortar vermelho

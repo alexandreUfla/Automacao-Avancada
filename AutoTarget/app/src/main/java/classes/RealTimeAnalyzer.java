@@ -83,8 +83,26 @@ public class RealTimeAnalyzer {
         }
     }
 
-    public static double calcularAmdahlSpeedup(double fracaoParalelizavel, int nucleos) {
-        if (nucleos <= 0) return 1.0;
-        return 1.0 / ((1.0 - fracaoParalelizavel) + (fracaoParalelizavel / nucleos));
+    public static double calcularAmdahl(int nucleos, int qtdAlvos) {
+        if (nucleos <= 1) return 1.0;
+        
+        // P empírico: a parte paralelizável (atualizar alvos) cresce com a quantidade de alvos
+        // Tempo serial fixo (ex: renderização, otimizador) = 20ms
+        // Tempo paralelo por alvo (ex: fisica) = 5ms
+        double tempoSerial = 20.0;
+        double tempoParalelo = qtdAlvos * 5.0;
+        double tempoTotal = tempoSerial + tempoParalelo;
+        
+        double pEmpirico = tempoParalelo / tempoTotal;
+        
+        // Speedup = 1 / ((1 - P) + (P / N))
+        double divisor = (1.0 - pEmpirico) + (pEmpirico / (double) nucleos);
+        return 1.0 / divisor;
+    }
+
+    public static double getPEmpirico(int qtdAlvos) {
+        double tempoSerial = 20.0;
+        double tempoParalelo = qtdAlvos * 5.0;
+        return tempoParalelo / (tempoSerial + tempoParalelo);
     }
 }

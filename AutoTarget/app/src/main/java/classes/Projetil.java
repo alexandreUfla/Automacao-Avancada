@@ -1,6 +1,6 @@
 package classes;
 
-public class Projetil extends Thread{
+public class Projetil implements Runnable {
     private double x, y;
     private double dirX, dirY;
     private double velocidade = 20.0;

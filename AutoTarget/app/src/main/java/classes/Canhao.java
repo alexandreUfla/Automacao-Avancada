@@ -1,6 +1,6 @@
 package classes;
 
-public class Canhao extends Thread{
+public class Canhao implements Runnable {
     private double x, y;
     private double targetX, targetY; // Para movimento suave
     private volatile boolean ativo = true;
@@ -50,6 +50,9 @@ public class Canhao extends Thread{
                 double fatorPenalidade = 1.0 + ((qtdCanhoesLado - 5) * 0.2);
                 tempoRecarga = (long) (1000 * fatorPenalidade);
             }
+            
+            // Controle Cyber-Físico: Se a temperatura subir acima do limiar (40º), o tempo de recarga dobra
+            tempoRecarga = (long) (tempoRecarga * jogo.getFatorResfriamento());
 
             if (temEnergia && (agora - ultimoTiro > tempoRecarga)) {
                 Alvo alvoMaisProximo = jogo.getAlvoMaisProximo(x, y, isLadoEsquerdo);
@@ -57,7 +60,6 @@ public class Canhao extends Thread{
                 if (alvoMaisProximo != null){
                     Projetil p = new Projetil(this.x, this.y, alvoMaisProximo.getX(), alvoMaisProximo.getY(), jogo, isLadoEsquerdo);
                     jogo.adicionarProjetil(p);
-                    p.start();
                     ultimoTiro = agora;
                 }
             }

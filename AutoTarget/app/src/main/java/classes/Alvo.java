@@ -3,7 +3,7 @@ package classes;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Alvo extends Thread{
+public abstract class Alvo implements Runnable {
     protected double x, y;
     protected double raio = 25;
     protected double velocidade;
